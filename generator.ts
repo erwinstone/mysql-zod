@@ -11,6 +11,10 @@ process.stdout.write(process.platform === 'win32' ? '\x1B[2J\x1B[0f' : '\x1B[2J\
 function getType(descType: Desc['Type'], descNull: Desc['Null']) {
   const type = descType.split('(')[0]
   const isNull = descNull === 'YES'
+  const string = ['z.string()']
+  const number = ['z.number()']
+  const nullish = 'nullish()'
+  const nonnegative = 'nonnegative()'
   switch (type) {
     case 'date':
     case 'datetime':
@@ -25,7 +29,9 @@ function getType(descType: Desc['Type'], descNull: Desc['Null']) {
     case 'longtext':
     case 'json':
     case 'decimal':
-      return isNull ? 'z.string().nullish()' : 'z.string()'
+      if (isNull)
+        string.push(nullish)
+      return string.join('.')
     case 'tinyint':
     case 'smallint':
     case 'mediumint':
@@ -33,7 +39,12 @@ function getType(descType: Desc['Type'], descNull: Desc['Null']) {
     case 'bigint':
     case 'float':
     case 'double':
-      return isNull ? 'z.number().nullish()' : 'z.number()'
+      const unsigned = descType.endsWith(' unsigned')
+      if (unsigned)
+        number.push(nonnegative)
+      if (isNull)
+        number.push(nullish)
+      return number.join('.')
     case 'enum':
       const value = descType.replace('enum(', '').replace(')', '').replaceAll(',', ', ')
       return `z.enum([${value}])`
@@ -60,10 +71,10 @@ async function generate(config: Config) {
   let tables = t[0].map((row: any) => row.table_name).filter((table: string) => !table.startsWith('knex_')).sort() as Tables
 
   if (config.tables && config.tables.length)
-    tables = tables.filter(table => config.tables!.includes(table))
+    tables = tables.filter(table => config.tables.includes(table))
 
   if (config.ignore && config.ignore.length)
-    tables = tables.filter(table => !config.ignore!.includes(table))
+    tables = tables.filter(table => !config.ignore.includes(table))
 
   for (const table of tables) {
     const d = await db.raw(`DESC ${table}`)
