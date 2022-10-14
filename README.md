@@ -28,11 +28,12 @@ Create User table:
 
 ```sql
 CREATE TABLE `User` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
   `username` varchar(255) NOT NULL,
   `password` varchar(255) NOT NULL,
   `profilePicture` varchar(255) DEFAULT NULL,
+  `role` enum('admin','user') NOT NULL,
   PRIMARY KEY (`id`)
 );
 ```
@@ -48,11 +49,12 @@ The above command will create a `User.ts` file with the following contents:
 import z from 'zod'
 
 export const User = z.object({
-  id: z.number(),
+  id: z.number().nonnegative(),
   name: z.string(),
   username: z.string(),
   password: z.string(),
   profilePicture: z.string().nullish(),
+  role: z.enum(['admin', 'user']),
 })
 ```
 ## Config
