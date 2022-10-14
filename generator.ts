@@ -25,7 +25,7 @@ function getType(descType: Desc['Type'], descNull: Desc['Null']) {
     case 'longtext':
     case 'json':
     case 'decimal':
-      return isNull ? 'z.string().nullable().optional()' : 'z.string()'
+      return isNull ? 'z.string().nullish()' : 'z.string()'
     case 'tinyint':
     case 'smallint':
     case 'mediumint':
@@ -33,7 +33,7 @@ function getType(descType: Desc['Type'], descNull: Desc['Null']) {
     case 'bigint':
     case 'float':
     case 'double':
-      return isNull ? 'z.number().nullable().optional()' : 'z.number()'
+      return isNull ? 'z.number().nullish()' : 'z.number()'
     case 'enum':
       const value = descType.replace('enum(', '').replace(')', '').replaceAll(',', ', ')
       return `z.enum([${value}])`

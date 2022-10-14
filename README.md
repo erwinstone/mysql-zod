@@ -52,7 +52,7 @@ export const User = z.object({
   name: z.string(),
   username: z.string(),
   password: z.string(),
-  profilePicture: z.string().nullable().optional(),
+  profilePicture: z.string().nullish(),
 })
 ```
 ## Config
