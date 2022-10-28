@@ -1,3 +1,6 @@
+2.0.2
+  - Fix extra line after last property
+
 2.0.1
   - Add inferred type
 

@@ -1,6 +1,6 @@
 {
 	"name": "mysql-zod",
-	"version": "2.0.1",
+	"version": "2.0.2",
 	"description": "Generate Zod interfaces from MySQL database",
 	"bin": "generator.mjs",
 	"repository": "git@github.com:erwinstone/mysql-zod.git",

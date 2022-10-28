@@ -3,7 +3,6 @@ import f from"path";import c from"fs-extra";import x from"knex";import b from"ca
 
 export const ${s} = z.object({`;for(const o of l){const y=h?b(o.Field):o.Field,g=C(o.Type,o.Null);n=`${n}
   ${y}: ${g},`}n=`${n}
-
 })
 
 export type ${s}Type = z.infer<typeof ${s}>

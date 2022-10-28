@@ -95,7 +95,6 @@ export const ${table} = z.object({`
   ${field}: ${type},`
     }
     content = `${content}
-
 })
 
 export type ${table}Type = z.infer<typeof ${table}>
