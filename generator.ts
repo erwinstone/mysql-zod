@@ -4,16 +4,24 @@
 import path from 'path'
 import fs from 'fs-extra'
 import knex from 'knex'
+import camelCase from 'camelcase'
 
 // Cross platform clear console.
 process.stdout.write(process.platform === 'win32' ? '\x1B[2J\x1B[0f' : '\x1B[2J\x1B[3J\x1B[H')
+
+const config = fs.readJSONSync(path.join(process.cwd(), 'mysql-zod.json')) as Config
+if (config.folder && config.folder !== '')
+  fs.emptyDirSync(config.folder)
+
+const isCamelCase = config.camelCase && config.camelCase === true
+const isNullish = config.nullish && config.nullish === true
 
 function getType(descType: Desc['Type'], descNull: Desc['Null']) {
   const type = descType.split('(')[0]
   const isNull = descNull === 'YES'
   const string = ['z.string()']
   const number = ['z.number()']
-  const nullish = 'nullish()'
+  const nullable = isNullish ? 'nullish()' : 'nullable()'
   const nonnegative = 'nonnegative()'
   switch (type) {
     case 'date':
@@ -30,7 +38,7 @@ function getType(descType: Desc['Type'], descNull: Desc['Null']) {
     case 'json':
     case 'decimal':
       if (isNull)
-        string.push(nullish)
+        string.push(nullable)
       return string.join('.')
     case 'tinyint':
     case 'smallint':
@@ -43,17 +51,13 @@ function getType(descType: Desc['Type'], descNull: Desc['Null']) {
       if (unsigned)
         number.push(nonnegative)
       if (isNull)
-        number.push(nullish)
+        number.push(nullable)
       return number.join('.')
     case 'enum':
       const value = descType.replace('enum(', '').replace(')', '').replaceAll(',', ', ')
       return `z.enum([${value}])`
   }
 }
-
-const config = fs.readJSONSync(path.join(process.cwd(), 'mysql-zod.json')) as Config
-if (config.folder && config.folder !== '')
-  fs.emptyDirSync(config.folder)
 
 async function generate(config: Config) {
   const db = knex({
@@ -76,14 +80,16 @@ async function generate(config: Config) {
   if (config.ignore && config.ignore.length)
     tables = tables.filter(table => !config.ignore.includes(table))
 
-  for (const table of tables) {
+  for (let table of tables) {
     const d = await db.raw(`DESC ${table}`)
     const describes = d[0] as Desc[]
+    if (isCamelCase)
+      table = camelCase(table)
     let content = `import z from 'zod'
 
 export const ${table} = z.object({`
     for (const desc of describes) {
-      const field = desc.Field
+      const field = isCamelCase ? camelCase(desc.Field) : desc.Field
       const type = getType(desc.Type, desc.Null)
       content = `${content}
   ${field}: ${type},`
@@ -120,4 +126,6 @@ interface Config {
   ignore?: string[]
   folder?: string
   suffix?: string
+  camelCase?: boolean
+  nullish?: boolean
 }
