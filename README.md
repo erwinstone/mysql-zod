@@ -24,15 +24,15 @@ Create a file named `mysql-zod.json` and fill it as follows (adjust to your need
 }
 ```
 
-Create User table:
+Create user table:
 
 ```sql
-CREATE TABLE `User` (
+CREATE TABLE `user` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
   `username` varchar(255) NOT NULL,
   `password` varchar(255) NOT NULL,
-  `profilePicture` varchar(255) DEFAULT NULL,
+  `profile_picture` varchar(255) DEFAULT NULL,
   `role` enum('admin','user') NOT NULL,
   PRIMARY KEY (`id`)
 );
@@ -43,17 +43,17 @@ Then run the command:
 npx mysql-zod
 ```
 
-The above command will create a `User.ts` file with the following contents:
+The above command will create a `user.ts` file with the following contents:
 
 ```typescript
 import z from 'zod'
 
-export const User = z.object({
+export const user = z.object({
   id: z.number().nonnegative(),
   name: z.string(),
   username: z.string(),
   password: z.string(),
-  profilePicture: z.string().nullish(),
+  profile_picture: z.string().nullable(),
   role: z.enum(['admin', 'user']),
 })
 ```
@@ -67,10 +67,12 @@ export const User = z.object({
   "user": "root",
   "password": "secret",
   "database": "myapp",
-  "tables": ["User", "Log"],
-  "ignore": ["Log"],
+  "tables": ["user", "log"],
+  "ignore": ["log"],
   "folder": "@zod",
-  "suffix": "table"
+  "suffix": "table",
+  "camelCase": false,
+  "nullish": false
 }
 ```
 
@@ -79,4 +81,6 @@ export const User = z.object({
 | tables | Filter the tables to include only those specified. |
 | ignore | Filter the tables to exclude those specified. |
 | folder | Specify the output directory. |
-| suffix | Suffix to the name of a generated file. (eg: `User.table.ts`) |
+| suffix | Suffix to the name of a generated file. (eg: `user.table.ts`) |
+| camelCase | Convert all table names and their properties to camelcase. (eg: `profile_picture` becomes `profilePicture`) |
+| nullish | Set schema as `nullish` instead of `nullable` |
