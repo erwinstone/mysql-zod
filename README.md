@@ -56,6 +56,8 @@ export const user = z.object({
   profile_picture: z.string().nullable(),
   role: z.enum(['admin', 'user']),
 })
+
+export type userType = z.infer<typeof user>
 ```
 ## Config
 

@@ -1,3 +1,6 @@
+2.0.1
+  - Add inferred type
+
 2.0.0
   - Nullable as default instead of nullish
   - Add `camelCase` and `nullish` options
