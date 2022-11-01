@@ -1,6 +1,6 @@
 {
 	"name": "mysql-zod",
-	"version": "2.0.2",
+	"version": "2.0.3",
 	"description": "Generate Zod interfaces from MySQL database",
 	"bin": "generator.mjs",
 	"repository": "git@github.com:erwinstone/mysql-zod.git",
@@ -10,9 +10,9 @@
 		"build": "esbuild generator.ts --format=esm --platform=node --outfile=generator.mjs --minify"
 	},
 	"devDependencies": {
-		"@antfu/eslint-config": "^0.27.0",
+		"@antfu/eslint-config": "^0.29.2",
 		"@types/fs-extra": "^9.0.13",
-		"@types/node": "^18.11.7",
+		"@types/node": "^18.11.9",
 		"esbuild": "^0.15.12",
 		"eslint": "^8.26.0",
 		"typescript": "^4.8.4",

@@ -97,7 +97,7 @@ export const ${table} = z.object({`
     content = `${content}
 })
 
-export type ${table}Type = z.infer<typeof ${table}>
+export type ${camelCase(table + 'Type')} = z.infer<typeof ${table}>
 `
     const dir = config.folder && config.folder !== '' ? config.folder : '.'
     const file = config.suffix && config.suffix !== '' ? `${table}.${config.suffix}.ts` : `${table}.ts`

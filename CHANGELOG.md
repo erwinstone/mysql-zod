@@ -1,3 +1,6 @@
+2.0.3
+  - Exported type use camelCase as default
+
 2.0.2
   - Fix extra line after last property
 
