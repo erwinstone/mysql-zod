@@ -74,7 +74,8 @@ export type userType = z.infer<typeof user>
   "folder": "@zod",
   "suffix": "table",
   "camelCase": false,
-  "nullish": false
+  "nullish": false,
+  "requiredString": false
 }
 ```
 
@@ -86,3 +87,4 @@ export type userType = z.infer<typeof user>
 | suffix | Suffix to the name of a generated file. (eg: `user.table.ts`) |
 | camelCase | Convert all table names and their properties to camelcase. (eg: `profile_picture` becomes `profilePicture`) |
 | nullish | Set schema as `nullish` instead of `nullable` |
+| requiredString | Add `min(1)` for string schema |

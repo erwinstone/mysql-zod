@@ -1,3 +1,6 @@
+2.0.4
+  - Add `requiredString` option
+
 2.0.3
   - Exported type use camelCase as default
 

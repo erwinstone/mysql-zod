@@ -1,6 +1,8 @@
 #!/usr/bin/env node
-
+/* eslint-disable key-spacing */
 /* eslint-disable no-case-declarations */
+/* eslint-disable no-multi-spaces */
+
 import path from 'path'
 import fs from 'fs-extra'
 import knex from 'knex'
@@ -13,16 +15,18 @@ const config = fs.readJSONSync(path.join(process.cwd(), 'mysql-zod.json')) as Co
 if (config.folder && config.folder !== '')
   fs.emptyDirSync(config.folder)
 
-const isCamelCase = config.camelCase && config.camelCase === true
-const isNullish = config.nullish && config.nullish === true
+const isCamelCase      = config.camelCase && config.camelCase === true
+const isNullish        = config.nullish && config.nullish === true
+const isRequiredString = config.requiredString && config.requiredString === true
 
 function getType(descType: Desc['Type'], descNull: Desc['Null']) {
-  const type = descType.split('(')[0]
-  const isNull = descNull === 'YES'
-  const string = ['z.string()']
-  const number = ['z.number()']
-  const nullable = isNullish ? 'nullish()' : 'nullable()'
+  const type        = descType.split('(')[0]
+  const isNull      = descNull === 'YES'
+  const string      = ['z.string()']
+  const number      = ['z.number()']
+  const nullable    = isNullish ? 'nullish()' : 'nullable()'
   const nonnegative = 'nonnegative()'
+  const min1        = 'min(1)'
   switch (type) {
     case 'date':
     case 'datetime':
@@ -39,6 +43,8 @@ function getType(descType: Desc['Type'], descNull: Desc['Null']) {
     case 'decimal':
       if (isNull)
         string.push(nullable)
+      else if (isRequiredString)
+        string.push(min1)
       return string.join('.')
     case 'tinyint':
     case 'smallint':
@@ -63,9 +69,9 @@ async function generate(config: Config) {
   const db = knex({
     client: 'mysql2',
     connection: {
-      host: config.host,
-      port: config.port,
-      user: config.user,
+      host    : config.host,
+      port    : config.port,
+      user    : config.user,
       password: config.password,
       database: config.database,
     },
@@ -97,9 +103,9 @@ export const ${table} = z.object({`
     content = `${content}
 })
 
-export type ${camelCase(table + 'Type')} = z.infer<typeof ${table}>
+export type ${camelCase(`${table}Type`)} = z.infer<typeof ${table}>
 `
-    const dir = config.folder && config.folder !== '' ? config.folder : '.'
+    const dir  = config.folder && config.folder !== '' ? config.folder : '.'
     const file = config.suffix && config.suffix !== '' ? `${table}.${config.suffix}.ts` : `${table}.ts`
     const dest = path.join(dir, file)
     console.log('Created:', dest)
@@ -130,4 +136,5 @@ interface Config {
   suffix?: string
   camelCase?: boolean
   nullish?: boolean
+  requiredString?: boolean
 }
