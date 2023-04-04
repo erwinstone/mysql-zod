@@ -43,7 +43,7 @@ CREATE TABLE `user` (
 The above command will create a `user.ts` file with the following contents:
 
 ```typescript
-import z from "zod";
+import z from 'zod';
 
 export const user = z.object({
   id: z.number().nonnegative(),
@@ -51,7 +51,7 @@ export const user = z.object({
   username: z.string(),
   password: z.string(),
   profile_picture: z.string().nullable(),
-  role: z.enum(["admin", "user"]),
+  role: z.enum(['admin', 'user']),
 });
 
 export type userType = z.infer<typeof user>;
@@ -76,12 +76,12 @@ export type userType = z.infer<typeof user>;
 }
 ```
 
-| Option         | Description                                                                                                 |
-| -------------- | ----------------------------------------------------------------------------------------------------------- |
-| tables         | Filter the tables to include only those specified.                                                          |
-| ignore         | Filter the tables to exclude those specified.                                                               |
-| folder         | Specify the output directory.                                                                               |
-| suffix         | Suffix to the name of a generated file. (eg: `user.table.ts`)                                               |
-| camelCase      | Convert all table names and their properties to camelcase. (eg: `profile_picture` becomes `profilePicture`) |
-| nullish        | Set schema as `nullish` instead of `nullable`                                                               |
-| requiredString | Add `min(1)` for string schema                                                                              |
+| Option | Description |
+| ------ | ----------- |
+| tables | Filter the tables to include only those specified. |
+| ignore | Filter the tables to exclude those specified. |
+| folder | Specify the output directory. |
+| suffix | Suffix to the name of a generated file. (eg: `user.table.ts`) |
+| camelCase | Convert all table names and their properties to camelcase. (eg: `profile_picture` becomes `profilePicture`) |
+| nullish | Set schema as `nullish` instead of `nullable` |
+| requiredString | Add `min(1)` for string schema |
