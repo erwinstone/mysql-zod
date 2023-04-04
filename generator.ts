@@ -11,20 +11,16 @@ import camelCase from 'camelcase'
 // Cross platform clear console.
 process.stdout.write(process.platform === 'win32' ? '\x1B[2J\x1B[0f' : '\x1B[2J\x1B[3J\x1B[H')
 
-const config = fs.readJSONSync(path.join(process.cwd(), 'mysql-zod.json')) as Config
-if (config.folder && config.folder !== '')
-  fs.emptyDirSync(config.folder)
+const isCamelCase =(config: Config)=> config.camelCase && config.camelCase === true
+const isNullish =(config: Config)=> config.nullish && config.nullish === true
+const isRequiredString =(config: Config)=>config.requiredString && config.requiredString === true
 
-const isCamelCase      = config.camelCase && config.camelCase === true
-const isNullish        = config.nullish && config.nullish === true
-const isRequiredString = config.requiredString && config.requiredString === true
-
-function getType(descType: Desc['Type'], descNull: Desc['Null']) {
+function getType(descType: Desc['Type'], descNull: Desc['Null'], config: Config) {
   const type        = descType.split('(')[0]
   const isNull      = descNull === 'YES'
   const string      = ['z.string()']
   const number      = ['z.number()']
-  const nullable    = isNullish ? 'nullish()' : 'nullable()'
+  const nullable    = isNullish(config) ? 'nullish()' : 'nullable()'
   const nonnegative = 'nonnegative()'
   const min1        = 'min(1)'
   switch (type) {
@@ -43,7 +39,7 @@ function getType(descType: Desc['Type'], descNull: Desc['Null']) {
     case 'decimal':
       if (isNull)
         string.push(nullable)
-      else if (isRequiredString)
+      else if (isRequiredString(config))
         string.push(min1)
       return string.join('.')
     case 'tinyint':
@@ -65,7 +61,7 @@ function getType(descType: Desc['Type'], descNull: Desc['Null']) {
   }
 }
 
-async function generate(config: Config) {
+export async function generate(config: Config) {
   const db = knex({
     client: 'mysql2',
     connection: {
@@ -77,7 +73,7 @@ async function generate(config: Config) {
     },
   })
 
-  const t = await db.raw('SELECT table_name FROM information_schema.tables WHERE table_schema = ?', [config.database])
+  const t = await db.raw('SELECT table_name as table_name FROM information_schema.tables WHERE table_schema = ?', [config.database])
   let tables = t[0].map((row: any) => row.table_name).filter((table: string) => !table.startsWith('knex_')).sort() as Tables
 
   if (config.tables && config.tables.length)
@@ -89,14 +85,14 @@ async function generate(config: Config) {
   for (let table of tables) {
     const d = await db.raw(`DESC ${table}`)
     const describes = d[0] as Desc[]
-    if (isCamelCase)
+    if (isCamelCase(config))
       table = camelCase(table)
     let content = `import z from 'zod'
 
 export const ${table} = z.object({`
     for (const desc of describes) {
-      const field = isCamelCase ? camelCase(desc.Field) : desc.Field
-      const type = getType(desc.Type, desc.Null)
+      const field = isCamelCase(config) ? camelCase(desc.Field) : desc.Field
+      const type = getType(desc.Type, desc.Null, config)
       content = `${content}
   ${field}: ${type},`
     }
@@ -114,17 +110,13 @@ export type ${camelCase(`${table}Type`)} = z.infer<typeof ${table}>
   await db.destroy()
 }
 
-(async () => {
-  await generate(config)
-})()
-
 type Tables = string[]
 interface Desc {
   Field: string
   Type: string
   Null: 'YES' | 'NO'
 }
-interface Config {
+export interface Config {
   host: string
   port: number
   user: string
