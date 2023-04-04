@@ -12,7 +12,7 @@ npm install mysql-zod --save-dev
 
 ## Usage/Examples
 
-Create a file named `mysql-zod.json` and fill it as follows (adjust to your needs):
+Create a file and fill it as follows (adjust to your needs):
 
 ```typescript
 import { generate } from "mysql-zod/generator";
