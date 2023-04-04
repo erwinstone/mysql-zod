@@ -83,7 +83,7 @@ export async function generate(config: Config) {
     tables = tables.filter(table => !config.ignore.includes(table))
 
   for (let table of tables) {
-    const d = await db.raw(`DESC ${table}`)
+    const d = await db.raw(`DESC ${config.database}.${table}`)
     const describes = d[0] as Desc[]
     if (isCamelCase(config))
       table = camelCase(table)
