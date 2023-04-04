@@ -12,16 +12,18 @@ npm install mysql-zod --save-dev
 
 ## Usage/Examples
 
-Create a file named `mysql-zod.json` and fill it as follows (adjust to your needs):
+Create a file and fill it as follows (adjust to your needs):
 
-```json
-{
-  "host": "127.0.0.1",
-  "port": 3306,
-  "user": "root",
-  "password": "secret",
-  "database": "myapp"
-}
+```typescript
+import { generate } from "mysql-zod/generator";
+
+await generate({
+  host: process.env.HOST,
+  port: process.env.PORT,
+  user: process.env.USER_NAME,
+  password: process.env.PASSWORD,
+  database: process.env.DATABASE,
+});
 ```
 
 Create user table:
@@ -37,16 +39,11 @@ CREATE TABLE `user` (
   PRIMARY KEY (`id`)
 );
 ```
-Then run the command:
-
-```bash
-npx mysql-zod
-```
 
 The above command will create a `user.ts` file with the following contents:
 
 ```typescript
-import z from 'zod'
+import z from 'zod';
 
 export const user = z.object({
   id: z.number().nonnegative(),
@@ -55,14 +52,14 @@ export const user = z.object({
   password: z.string(),
   profile_picture: z.string().nullable(),
   role: z.enum(['admin', 'user']),
-})
+});
 
-export type userType = z.infer<typeof user>
+export type userType = z.infer<typeof user>;
 ```
+
 ## Config
 
-`mysql-zod.json`
-```json
+```typescript
 {
   "host": "127.0.0.1",
   "port": 3306,
