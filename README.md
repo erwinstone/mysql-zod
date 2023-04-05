@@ -59,9 +59,23 @@ export const user = z.object({
 
 export type userType = z.infer<typeof user>
 ```
+
+You can also use the mysql-zod API programmatically:
+
+```typescript
+import { generate } from 'mysql-zod'
+
+await generate({
+  host: '127.0.0.1',
+  port: 3306,
+  user: 'root',
+  password: 'secret',
+  database: 'myapp',
+})
+```
+
 ## Config
 
-`mysql-zod.json`
 ```json
 {
   "host": "127.0.0.1",

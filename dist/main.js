@@ -1,0 +1,8 @@
+import y from"node:path";import x from"fs-extra";import $ from"knex";import p from"camelcase";function C(e,i,s){const b=s.nullish&&s.nullish===!0,a=s.requiredString&&s.requiredString===!0,l=e.split("(")[0].split(" ")[0],r=i==="YES",t=["z.string()"],o=["z.number()"],c=b?"nullish()":"nullable()",n="nonnegative()",d="min(1)";switch(l){case"date":case"datetime":case"timestamp":case"time":case"year":case"char":case"varchar":case"tinytext":case"text":case"mediumtext":case"longtext":case"json":case"decimal":return r?t.push(c):a&&t.push(d),t.join(".");case"tinyint":case"smallint":case"mediumint":case"int":case"bigint":case"float":case"double":return e.endsWith(" unsigned")&&o.push(n),r&&o.push(c),o.join(".");case"enum":return`z.enum([${e.replace("enum(","").replace(")","").replace(/,/g,", ")}])`}}async function E(e){const i=$({client:"mysql2",connection:{host:e.host,port:e.port,user:e.user,password:e.password,database:e.database}}),s=e.camelCase&&e.camelCase===!0;let a=(await i.raw("SELECT table_name as table_name FROM information_schema.tables WHERE table_schema = ?",[e.database]))[0].map(t=>t.table_name).filter(t=>!t.startsWith("knex_")).sort();const l=e.tables;l&&l.length&&(a=a.filter(t=>l.includes(t)));const r=e.ignore;r&&r.length&&(a=a.filter(t=>!r.includes(t)));for(let t of a){const c=(await i.raw(`DESC ${t}`))[0];s&&(t=p(t));let n=`import z from 'zod'
+
+export const ${t} = z.object({`;for(const u of c){const h=s?p(u.Field):u.Field,g=C(u.Type,u.Null,e);n=`${n}
+  ${h}: ${g},`}n=`${n}
+})
+
+export type ${p(`${t}Type`)} = z.infer<typeof ${t}>
+`;const d=e.folder&&e.folder!==""?e.folder:".",f=e.suffix&&e.suffix!==""?`${t}.${e.suffix}.ts`:`${t}.ts`,m=y.join(d,f);console.log("Created:",m),x.outputFileSync(m,n)}await i.destroy()}export{E as generate};
