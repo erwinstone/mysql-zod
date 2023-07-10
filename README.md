@@ -84,7 +84,7 @@ await generate({
   "password": "secret",
   "database": "myapp",
   "tables": ["user", "log"],
-  "ignore": ["log","/^temp/"],
+  "ignore": ["log", "/^temp/"],
   "folder": "@zod",
   "suffix": "table",
   "camelCase": false,

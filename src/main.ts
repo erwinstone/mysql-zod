@@ -76,32 +76,31 @@ export async function generate(config: Config) {
   if (includedTables && includedTables.length)
     tables = tables.filter(table => includedTables.includes(table))
 
-  const allIgnoredTables = config.ignore;
+  const allIgnoredTables = config.ignore
   const ignoredTablesRegex = allIgnoredTables?.filter((ignoreString) => {
-    const isPattern =
-      ignoreString.startsWith("/") && ignoreString.endsWith("/");
-      return isPattern;
-  });
+    const isPattern
+      = ignoreString.startsWith('/') && ignoreString.endsWith('/')
+    return isPattern
+  })
   const ignoredTableNames = allIgnoredTables?.filter(
-    (table) => !ignoredTablesRegex?.includes(table)
-  );
+    table => !ignoredTablesRegex?.includes(table),
+  )
 
   if (ignoredTableNames && ignoredTableNames.length)
-    tables = tables.filter((table) => !ignoredTableNames.includes(table));
+    tables = tables.filter(table => !ignoredTableNames.includes(table))
 
   if (ignoredTablesRegex && ignoredTablesRegex.length) {
     tables = tables.filter((table) => {
-      let useTable = true;
+      let useTable = true
       ignoredTablesRegex.forEach((text) => {
-        const pattern = text.substring(1, text.length - 1);
-        if (null !== table.match(pattern)) {
-          useTable = false;
-        }
-      });
-      return useTable;
-    });
+        const pattern = text.substring(1, text.length - 1)
+        if (table.match(pattern) !== null)
+          useTable = false
+      })
+      return useTable
+    })
   }
-  
+
   for (let table of tables) {
     const d = await db.raw(`DESC ${table}`)
     const describes = d[0] as Desc[]
