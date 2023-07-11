@@ -6,5 +6,5 @@
     "target": "ESNext",
     "lib": ["ESNext"],
     "esModuleInterop": true
-  },
+  }
 }

@@ -14,7 +14,9 @@
   ],
   "scripts": {
     "build": "esbuild src/main.ts --format=esm --platform=node --outfile=dist/main.js --minify && esbuild src/bin.ts --format=esm --platform=node --outfile=dist/bin.js --minify",
-    "build-dts": "tsc src/main.ts -d --emitDeclarationOnly --esModuleInterop --outDir dist"
+    "build-dts": "tsc src/main.ts -d --emitDeclarationOnly --esModuleInterop --outDir dist",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
   },
   "dependencies": {
     "camelcase": "^7.0.1",

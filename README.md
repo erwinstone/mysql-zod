@@ -84,7 +84,7 @@ await generate({
   "password": "secret",
   "database": "myapp",
   "tables": ["user", "log"],
-  "ignore": ["log"],
+  "ignore": ["log", "/^temp/"],
   "folder": "@zod",
   "suffix": "table",
   "camelCase": false,
@@ -96,7 +96,7 @@ await generate({
 | Option | Description |
 | ------ | ----------- |
 | tables | Filter the tables to include only those specified. |
-| ignore | Filter the tables to exclude those specified. |
+| ignore | Filter the tables to exclude those specified. If a table name begins and ends with "/", it will be processed as a regular expression. |
 | folder | Specify the output directory. |
 | suffix | Suffix to the name of a generated file. (eg: `user.table.ts`) |
 | camelCase | Convert all table names and their properties to camelcase. (eg: `profile_picture` becomes `profilePicture`) |
