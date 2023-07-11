@@ -1,6 +1,4 @@
-/* eslint-disable key-spacing */
 /* eslint-disable no-case-declarations */
-/* eslint-disable no-multi-spaces */
 
 import path from 'node:path'
 import fs from 'fs-extra'
@@ -8,15 +6,15 @@ import knex from 'knex'
 import camelCase from 'camelcase'
 
 function getType(descType: Desc['Type'], descNull: Desc['Null'], config: Config) {
-  const isNullish        = config.nullish && config.nullish               === true
+  const isNullish = config.nullish && config.nullish === true
   const isRequiredString = config.requiredString && config.requiredString === true
-  const type             = descType.split('(')[0].split(' ')[0]
-  const isNull           = descNull === 'YES'
-  const string           = ['z.string()']
-  const number           = ['z.number()']
-  const nullable         = isNullish ? 'nullish()' : 'nullable()'
-  const nonnegative      = 'nonnegative()'
-  const min1             = 'min(1)'
+  const type = descType.split('(')[0].split(' ')[0]
+  const isNull = descNull === 'YES'
+  const string = ['z.string()']
+  const number = ['z.number()']
+  const nullable = isNullish ? 'nullish()' : 'nullable()'
+  const nonnegative = 'nonnegative()'
+  const min1 = 'min(1)'
   switch (type) {
     case 'date':
     case 'datetime':
@@ -59,9 +57,9 @@ export async function generate(config: Config) {
   const db = knex({
     client: 'mysql2',
     connection: {
-      host    : config.host,
-      port    : config.port,
-      user    : config.user,
+      host: config.host,
+      port: config.port,
+      user: config.user,
       password: config.password,
       database: config.database,
     },
@@ -72,13 +70,56 @@ export async function generate(config: Config) {
   const t = await db.raw('SELECT table_name as table_name FROM information_schema.tables WHERE table_schema = ?', [config.database])
   let tables = t[0].map((row: any) => row.table_name).filter((table: string) => !table.startsWith('knex_')).sort() as Tables
 
-  const includedTables = config.tables
-  if (includedTables && includedTables.length)
-    tables = tables.filter(table => includedTables.includes(table))
+  const allIncludedTables = config.tables
+  const includedTablesRegex = allIncludedTables?.filter((includeString) => {
+    const isPattern
+      = includeString.startsWith('/') && includeString.endsWith('/')
+    return isPattern
+  })
+  const includedTableNames = allIncludedTables?.filter(
+    table => includedTablesRegex?.includes(table),
+  )
 
-  const ignoredTables = config.ignore
-  if (ignoredTables && ignoredTables.length)
-    tables = tables.filter(table => !ignoredTables.includes(table))
+  if (includedTableNames && includedTableNames.length) {
+    tables = tables.filter((table) => {
+      if (includedTableNames.includes(table))
+        return true
+      let useTable = false
+      if (includedTablesRegex && includedTablesRegex.length) {
+        includedTablesRegex.forEach((text) => {
+          const pattern = text.substring(1, text.length - 1)
+          if (table.match(pattern) !== null)
+            useTable = true
+        })
+      }
+      return useTable
+    })
+  }
+
+  const allIgnoredTables = config.ignore
+  const ignoredTablesRegex = allIgnoredTables?.filter((ignoreString) => {
+    const isPattern
+      = ignoreString.startsWith('/') && ignoreString.endsWith('/')
+    return isPattern
+  })
+  const ignoredTableNames = allIgnoredTables?.filter(
+    table => !ignoredTablesRegex?.includes(table),
+  )
+
+  if (ignoredTableNames && ignoredTableNames.length)
+    tables = tables.filter(table => !ignoredTableNames.includes(table))
+
+  if (ignoredTablesRegex && ignoredTablesRegex.length) {
+    tables = tables.filter((table) => {
+      let useTable = true
+      ignoredTablesRegex.forEach((text) => {
+        const pattern = text.substring(1, text.length - 1)
+        if (table.match(pattern) !== null)
+          useTable = false
+      })
+      return useTable
+    })
+  }
 
   for (let table of tables) {
     const d = await db.raw(`DESC ${table}`)
@@ -99,7 +140,7 @@ export const ${table} = z.object({`
 
 export type ${camelCase(`${table}Type`)} = z.infer<typeof ${table}>
 `
-    const dir  = (config.folder && config.folder !== '') ? config.folder : '.'
+    const dir = (config.folder && config.folder !== '') ? config.folder : '.'
     const file = (config.suffix && config.suffix !== '') ? `${table}.${config.suffix}.ts` : `${table}.ts`
     const dest = path.join(dir, file)
     console.log('Created:', dest)

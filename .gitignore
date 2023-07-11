@@ -1,2 +1,5 @@
 node_modules
 pnpm-lock.yaml
+package-lock.json
+mysql-zod.json
+.vscode
