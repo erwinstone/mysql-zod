@@ -1,3 +1,6 @@
+2.2.0
+  - Support ignoring tables with RegExp
+
 2.1.0
   - Supports both an API and a CLI
   - Fixed the issue of different `table_name` between MySQL and MariaDB.
